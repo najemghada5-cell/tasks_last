@@ -3,64 +3,62 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class UserController extends Controller
 {
-    // عرض جدول المستخدمين من مجلد users ملف index
     public function index()
     {
-        $users = DB::table('users')->get();
+        $users = User::all();
         return view('users.index', compact('users'));
     }
 
-    // إضافة مستخدم جديد
-    public function create()
+    public function create(Request $request)
     {
-        $name = $_POST['name'] ?? null;
-        $email = $_POST['email'] ?? null;
-        $password = $_POST['password'] ?? null;
+        $request->validate([
+            'name' => 'required|min:3|max:50',
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ]);
 
-        if ($name && $email && $password) {
-            DB::table('users')->insert([
-                'name' => $name,
-                'email' => $email,
-                'password' => Hash::make($password),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
+
         return redirect()->back();
     }
 
-    // حذف مستخدم
+
+
+
+
     public function destroy($id)
     {
-        DB::table('users')->where('id', $id)->delete();
+        User::destroy($id);
         return redirect()->back();
     }
 
-    // صفحة تعديل المستخدم
     public function edit($id)
     {
-        $user = DB::table('users')->where('id', $id)->first();
+        $user = User::findOrFail($id);
         return view('users.edit', compact('user'));
     }
 
-    // تحديث بيانات المستخدم
-    public function update($id)
+    public function update(Request $request, $id)
     {
-        $name = $_POST['name'] ?? null;
-        $email = $_POST['email'] ?? null;
+        $request->validate([
+            'name' => 'required|min:3|max:50',
+            'email' => 'required|email',
+        ]);
 
-        if ($name && $email) {
-            DB::table('users')->where('id', $id)->update([
-                'name' => $name,
-                'email' => $email,
-                'updated_at' => now()
-            ]);
-        }
+       User::findOrFail($id)->update([
+    'name' => $request->name,
+    'email' => $request->email,
+       ]);
+
         return redirect('/users');
     }
 }

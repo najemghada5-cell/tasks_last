@@ -16,6 +16,15 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-check-circle"></i> حفظ المهمة</button>
                     </form>
+                    @if ($errors->any())
+    <div class="alert alert-danger mt-2 py-2">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+        @endif
                 </div>
             </div>
         </div>
